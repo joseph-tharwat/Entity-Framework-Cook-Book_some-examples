@@ -1,0 +1,6 @@
+@EntityFrameworkeCookBook_HostAddress = http://localhost:5088
+
+GET {{EntityFrameworkeCookBook_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
