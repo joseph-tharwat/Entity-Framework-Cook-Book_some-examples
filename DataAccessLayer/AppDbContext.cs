@@ -30,7 +30,18 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             applyConvention(modelBuilder);
+
+            modelBuilder.Entity<Address>()
+                .HasKey(a => a.userId);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.address)
+                .WithOne(a => a.user)
+                .HasForeignKey<Address>(a => a.userId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             base.OnModelCreating(modelBuilder);
         }
