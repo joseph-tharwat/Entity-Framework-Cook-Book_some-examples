@@ -9,7 +9,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("default")));
+builder.Services.AddDbContext<AppDbContext>(opt => 
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("default"))
+    .EnableSensitiveDataLogging()
+    .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
+
+);
 
 
 var app = builder.Build();

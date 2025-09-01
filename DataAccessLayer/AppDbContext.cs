@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkeCookBook.DataAccessLayer.Payment;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Reflection.Emit;
 using System.Security.Principal;
@@ -12,6 +13,10 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
         public DbSet<User> Users { get; set; }  
         public DbSet<Address> addresses { get; set; }
         public DbSet<Phone> phones { get; set; }
+
+        public DbSet<CreditCardPayment> creditCardPayments { get; set; }
+        public DbSet<InstapayPayment> instapayPayments { get; set; }
+
         public AppDbContext(DbContextOptions options) : base(options)
         {
             conventions.Add(StringConvention.Instance);
@@ -82,6 +87,10 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
             applyAuditable(modelBuilder);
 
             modelBuilder.UseHiLo();
+
+
+
+
 
             base.OnModelCreating(modelBuilder);
         }
