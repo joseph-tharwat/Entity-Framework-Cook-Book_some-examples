@@ -1,6 +1,6 @@
 ﻿namespace EntityFrameworkeCookBook.DataAccessLayer
 {
-    public class User
+    public class User : IAuditable
     {
         public int id { get; set; }
         public string name { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Reflection.Emit;
+using System.Security.Principal;
 
 namespace EntityFrameworkeCookBook.DataAccessLayer
 {
@@ -16,7 +17,7 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
             conventions.Add(StringConvention.Instance);
         }
 
-        protected AppDbContext()
+        public AppDbContext()
         {
             conventions.Add(StringConvention.Instance);
         }
@@ -26,6 +27,28 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
             foreach (var conv in conventions)
             {
                 conv.Apply(modelBuilder);
+            }
+        }
+        private void applyAuditable(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(IAuditable).IsAssignableFrom(entityType.ClrType))
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(typeof(string), Auditable.CreatedBy)
+                        .HasMaxLength(20);
+
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(typeof(DateTime), Auditable.CreatedOn);
+
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(typeof(string), Auditable.UpdatedBy);
+                    
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(typeof(DateTime), Auditable.UpdatedOn);
+
+                }
             }
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,10 +79,33 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
                 .WithOne(p => p.user)
                 .IsRequired();
 
-
-
+            applyAuditable(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
+
+        private void saveAuditingData()
+        {
+            foreach (var entry in ChangeTracker.Entries().Where(
+                e => e.Entity is IAuditable &&
+                (e.State == EntityState.Modified || e.State == EntityState.Added)))
+            {
+                entry.Property(Auditable.UpdatedBy).CurrentValue = WindowsIdentity.GetCurrent().Name;
+                entry.Property(Auditable.UpdatedOn).CurrentValue = DateTime.Now;
+
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Property(Auditable.CreatedBy).CurrentValue = WindowsIdentity.GetCurrent().Name;
+                    entry.Property(Auditable.CreatedOn).CurrentValue = DateTime.Now;
+                }
+            }
+        }
+
+        public override int SaveChanges()
+        {
+            saveAuditingData();
+            return base.SaveChanges();
+        }
+
     }
 }
