@@ -20,7 +20,10 @@ namespace EntityFrameworkeCookBook.Migrations
                 .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseHiLo(modelBuilder, "EntityFrameworkHiLoSequence");
+
+            modelBuilder.HasSequence("EntityFrameworkHiLoSequence")
+                .IncrementsBy(10);
 
             modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Address", b =>
                 {
@@ -46,7 +49,7 @@ namespace EntityFrameworkeCookBook.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"));
 
                     b.Property<string>("phone")
                         .IsRequired()
@@ -69,7 +72,7 @@ namespace EntityFrameworkeCookBook.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("id"));
 
                     b.Property<DateTime>("CreateOn")
                         .HasColumnType("datetime2");

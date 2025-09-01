@@ -20,7 +20,7 @@ namespace EntityFrameworkeCookBook.Controllers
         {
             appDbContext.Users.Add(new User {name="u1" });
             appDbContext.SaveChanges();
-            return Ok("done");
+            return Ok("done");  
             
         }
     }

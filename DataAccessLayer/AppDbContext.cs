@@ -81,6 +81,8 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
 
             applyAuditable(modelBuilder);
 
+            modelBuilder.UseHiLo();
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -104,7 +106,11 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
         public override int SaveChanges()
         {
             saveAuditingData();
-            return base.SaveChanges();
+            Console.WriteLine("old value: " + ChangeTracker.Entries<User>().First().Property(u=>u.id).CurrentValue);
+            base.SaveChanges();
+
+            Console.WriteLine("new Value: " + ChangeTracker.Entries<User>().First().Property(u => u.id).CurrentValue);
+            return 0;
         }
 
     }
