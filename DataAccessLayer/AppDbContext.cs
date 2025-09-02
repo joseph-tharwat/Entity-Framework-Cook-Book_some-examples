@@ -15,6 +15,9 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
         public DbSet<Phone> phones { get; set; }
 
         public DbSet<PaymentMethod> paymentMethods { get; set; }
+        public DbSet<CreditCardPayment> creditCardPayments { get; set; }
+        public DbSet<InstapayPayment> instapayPayments { get; set; }    
+
 
         public AppDbContext(DbContextOptions options) : base(options)
         {
@@ -87,12 +90,11 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
 
             modelBuilder.UseHiLo();
 
+            modelBuilder.Entity<CreditCardPayment>()
+                .ToTable("CreditCardPayment");
 
-            modelBuilder.Entity<PaymentMethod>()
-                .HasDiscriminator<string>("type")
-                .HasValue<CreditCardPayment>("CreditCard")
-                .HasValue<InstapayPayment>("Instapay");
-
+            modelBuilder.Entity<InstapayPayment>()
+                .ToTable("InstapayPayment");
 
             base.OnModelCreating(modelBuilder);
         }
@@ -107,7 +109,7 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
                 entry.Property(Auditable.UpdatedOn).CurrentValue = DateTime.Now;
 
                 if (entry.State == EntityState.Added)
-                {
+                {  
                     entry.Property(Auditable.CreatedBy).CurrentValue = WindowsIdentity.GetCurrent().Name;
                     entry.Property(Auditable.CreatedOn).CurrentValue = DateTime.Now;
                 }

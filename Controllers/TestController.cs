@@ -30,7 +30,8 @@ namespace EntityFrameworkeCookBook.Controllers
         [HttpPost]
         public IActionResult MappingHierachyPost()
         {
-            appDbContext.paymentMethods.Add(new InstapayPayment { Email = "j@gmail", Name = "Alahly" });
+            appDbContext.instapayPayments.Add(new InstapayPayment { Name = "inst", Email = "jo@inst.com" });
+            appDbContext.creditCardPayments.Add(new CreditCardPayment { Name="cred", CardNumber="123"});
             appDbContext.SaveChanges();
             return Ok("Added");
         }
@@ -38,10 +39,16 @@ namespace EntityFrameworkeCookBook.Controllers
         [HttpGet]
         public IActionResult MappingHierachyGet()
         {
-            var result = appDbContext.paymentMethods.OfType<CreditCardPayment>().ToList();
+            var result = appDbContext.paymentMethods.OfType<InstapayPayment>().ToList();
+            return Ok(result);
+        }
+
+        [HttpGet("all")]
+        public IActionResult MappingHierachyGetAll()
+        {
+            var result = appDbContext.paymentMethods.ToList();
             return Ok(result);
 
         }
-
     }
 }

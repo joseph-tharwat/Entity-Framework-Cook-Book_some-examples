@@ -56,18 +56,11 @@ namespace EntityFrameworkeCookBook.Migrations
                         .HasMaxLength(35)
                         .HasColumnType("nvarchar(35)");
 
-                    b.Property<string>("type")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
                     b.HasKey("Id");
 
                     b.ToTable("paymentMethods");
 
-                    b.HasDiscriminator<string>("type").HasValue("PaymentMethod");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Phone", b =>
@@ -130,9 +123,10 @@ namespace EntityFrameworkeCookBook.Migrations
 
                     b.Property<string>("CardNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
 
-                    b.HasDiscriminator().HasValue("CreditCard");
+                    b.ToTable("CreditCardPayment", (string)null);
                 });
 
             modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.InstapayPayment", b =>
@@ -141,9 +135,10 @@ namespace EntityFrameworkeCookBook.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
 
-                    b.HasDiscriminator().HasValue("Instapay");
+                    b.ToTable("InstapayPayment", (string)null);
                 });
 
             modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Address", b =>
@@ -166,6 +161,24 @@ namespace EntityFrameworkeCookBook.Migrations
                         .IsRequired();
 
                     b.Navigation("user");
+                });
+
+            modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.CreditCardPayment", b =>
+                {
+                    b.HasOne("EntityFrameworkeCookBook.DataAccessLayer.Payment.PaymentMethod", null)
+                        .WithOne()
+                        .HasForeignKey("EntityFrameworkeCookBook.DataAccessLayer.Payment.CreditCardPayment", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.InstapayPayment", b =>
+                {
+                    b.HasOne("EntityFrameworkeCookBook.DataAccessLayer.Payment.PaymentMethod", null)
+                        .WithOne()
+                        .HasForeignKey("EntityFrameworkeCookBook.DataAccessLayer.Payment.InstapayPayment", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.User", b =>
