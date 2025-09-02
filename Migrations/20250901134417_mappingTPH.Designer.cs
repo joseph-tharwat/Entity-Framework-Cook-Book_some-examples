@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkeCookBook.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250901132734_paymentTPH")]
-    partial class paymentTPH
+    [Migration("20250901134417_mappingTPH")]
+    partial class mappingTPH
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,7 +46,7 @@ namespace EntityFrameworkeCookBook.Migrations
                     b.ToTable("addresses");
                 });
 
-            modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.CreditCardPayment", b =>
+            modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.PaymentMethod", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,42 +54,23 @@ namespace EntityFrameworkeCookBook.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"));
 
-                    b.Property<string>("CardNumber")
-                        .IsRequired()
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(35)
                         .HasColumnType("nvarchar(35)");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("creditCardPayments");
-                });
-
-            modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.InstapayPayment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
+                    b.Property<string>("type")
                         .IsRequired()
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("instapayPayments");
+                    b.ToTable("paymentMethods");
+
+                    b.HasDiscriminator<string>("type").HasValue("PaymentMethod");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Phone", b =>
@@ -144,6 +125,28 @@ namespace EntityFrameworkeCookBook.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.CreditCardPayment", b =>
+                {
+                    b.HasBaseType("EntityFrameworkeCookBook.DataAccessLayer.Payment.PaymentMethod");
+
+                    b.Property<string>("CardNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("CreditCard");
+                });
+
+            modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Payment.InstapayPayment", b =>
+                {
+                    b.HasBaseType("EntityFrameworkeCookBook.DataAccessLayer.Payment.PaymentMethod");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("Instapay");
                 });
 
             modelBuilder.Entity("EntityFrameworkeCookBook.DataAccessLayer.Address", b =>

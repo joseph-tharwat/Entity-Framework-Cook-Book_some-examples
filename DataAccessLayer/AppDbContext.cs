@@ -14,8 +14,7 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
         public DbSet<Address> addresses { get; set; }
         public DbSet<Phone> phones { get; set; }
 
-        public DbSet<CreditCardPayment> creditCardPayments { get; set; }
-        public DbSet<InstapayPayment> instapayPayments { get; set; }
+        public DbSet<PaymentMethod> paymentMethods { get; set; }
 
         public AppDbContext(DbContextOptions options) : base(options)
         {
@@ -89,7 +88,10 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
             modelBuilder.UseHiLo();
 
 
-
+            modelBuilder.Entity<PaymentMethod>()
+                .HasDiscriminator<string>("type")
+                .HasValue<CreditCardPayment>("CreditCard")
+                .HasValue<InstapayPayment>("Instapay");
 
 
             base.OnModelCreating(modelBuilder);
@@ -115,10 +117,8 @@ namespace EntityFrameworkeCookBook.DataAccessLayer
         public override int SaveChanges()
         {
             saveAuditingData();
-            Console.WriteLine("old value: " + ChangeTracker.Entries<User>().First().Property(u=>u.id).CurrentValue);
             base.SaveChanges();
 
-            Console.WriteLine("new Value: " + ChangeTracker.Entries<User>().First().Property(u => u.id).CurrentValue);
             return 0;
         }
 

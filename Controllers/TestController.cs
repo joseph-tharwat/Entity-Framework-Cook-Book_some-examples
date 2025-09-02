@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkeCookBook.DataAccessLayer;
+using EntityFrameworkeCookBook.DataAccessLayer.Payment;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,5 +26,22 @@ namespace EntityFrameworkeCookBook.Controllers
             return Ok("done");  
             
         }
+
+        [HttpPost]
+        public IActionResult MappingHierachyPost()
+        {
+            appDbContext.paymentMethods.Add(new InstapayPayment { Email = "j@gmail", Name = "Alahly" });
+            appDbContext.SaveChanges();
+            return Ok("Added");
+        }
+
+        [HttpGet]
+        public IActionResult MappingHierachyGet()
+        {
+            var result = appDbContext.paymentMethods.OfType<CreditCardPayment>().ToList();
+            return Ok(result);
+
+        }
+
     }
 }
