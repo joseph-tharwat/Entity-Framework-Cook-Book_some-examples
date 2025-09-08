@@ -2,6 +2,8 @@
 using EntityFrameworkeCookBook.DataAccessLayer.Payment;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace EntityFrameworkeCookBook.Controllers
 {
@@ -48,7 +50,75 @@ namespace EntityFrameworkeCookBook.Controllers
         {
             var result = appDbContext.paymentMethods.ToList();
             return Ok(result);
-
         }
+
+
+        [HttpGet("transaction")]
+        public async Task<IActionResult> testTransaction()
+        {
+            await using var transaction = await appDbContext.Database.BeginTransactionAsync();
+            var u = appDbContext.Users.Where(u => u.id == 1).First();
+            u.name = "new u5";
+            await appDbContext.SaveChangesAsync();
+            await Task.Delay(7000); //any request need to change this row must wait untill commit
+            await transaction.CommitAsync();
+            
+            return Ok("updated Done");
+        }
+
+        [HttpGet("TimeStamp")]
+        public async Task<IActionResult> testTimeStamp()
+        {
+            var u = appDbContext.Users.Where(u => u.id == 1).First();
+            u.name = "new u5";
+            await Task.Delay(7000); //-> make a change in database
+            await appDbContext.SaveChangesAsync();//here will throw exception
+
+            return Ok("updated Done");
+        }
+
+
+        [HttpGet("TimeStampNeglectChanges")]
+        public async Task<IActionResult> testTimeStampNeglectChanges()
+        {
+            var u = appDbContext.Users.Where(u => u.id == 1).First();
+            u.name = "new u5";
+            await Task.Delay(7000); //-> make a change in database
+            try
+            {
+                await appDbContext.SaveChangesAsync();//here will throw exception 
+            }
+            catch (Exception ex)
+            {
+                //neglect the changes
+                appDbContext.Entry(u).State = EntityState.Deleted;
+                u = appDbContext.Users.Where(u => u.id == 1).First();//get the new version. If there are any incoming logic depends on this entity, they will use the new version
+            }
+
+            return Ok("updated Done");
+        }
+
+        [HttpGet("NeglectTimeStamp")]
+        public async Task<IActionResult> testNeglectTimeStamp()
+        {
+            var u = appDbContext.Users.Where(u => u.id == 1).First();
+            u.name = "new u5";
+
+            await Task.Delay(7000); //-> make a change in database 
+            try
+            {
+                await appDbContext.SaveChangesAsync();
+            }   
+            catch(Exception e) // concurancy exception
+            {
+                var newRowVersion = appDbContext.Users.Where(u => u.id == 1).Select(u => u.rowVersion).First(); // get the new value 
+                appDbContext.Users.Entry(u).Property(u => u.rowVersion).OriginalValue = newRowVersion;
+                u.rowVersion = newRowVersion;
+                var result = await appDbContext.SaveChangesAsync(); // insert the new value
+            }
+            
+            return Ok("updated Done");
+        }
+
     }
 }
