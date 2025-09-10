@@ -120,5 +120,14 @@ namespace EntityFrameworkeCookBook.Controllers
             return Ok("updated Done");
         }
 
+
+        [HttpGet("checkQueryWithShadowProperty")]
+        public async Task<IActionResult> checkQueryWithShadowProperty()
+        {
+            var u = await appDbContext.Users.Where(u => EF.Property<string>(u, "CreatedBy") == "Joseph").ToListAsync();
+            return Ok(u);
+        }
+
+
     }
 }
