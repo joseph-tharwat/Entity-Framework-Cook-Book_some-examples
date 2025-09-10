@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using EntityFrameworkeCookBook.DataAccessLayer.Query;
 
 namespace EntityFrameworkeCookBook.Controllers
 {
@@ -161,6 +162,13 @@ namespace EntityFrameworkeCookBook.Controllers
         }
 
 
+
+        [HttpGet("FilterQueryExtension")]
+        public IActionResult FilterQueryExtension()
+        {
+            var u = appDbContext.Users.FilterByName("duser1").ToList();
+            return Ok(u);
+        }
 
 
     }
