@@ -129,5 +129,39 @@ namespace EntityFrameworkeCookBook.Controllers
         }
 
 
+
+        [HttpGet("clientSideBuildInFunctionWithLINQ")]
+        public async Task<IActionResult> clientSideBuildInFunctionWithLINQ()
+        {
+            var u = await appDbContext.Users.Where(u => u.name.Contains("u1")).ToListAsync();
+            return Ok(u);
+        }
+        private bool MyContains(string name, string match)
+        {
+            return name.Contains(match);
+        }
+
+        [HttpGet("clientSideUserFunctionWithLINQ_error")]
+        public async Task<IActionResult> clientSideUserFunctionWithLINQ_error()
+        {
+            var u = await appDbContext.Users.
+                Where(u => MyContains(u.name, "dUser1")).ToListAsync(); // will throw exception
+            return Ok(u);
+        }
+
+        [HttpGet("clientSideUserFunctionWithLINQ")]
+        public IActionResult clientSideUserFunctionWithLINQ()
+        {
+            var u = appDbContext.Users
+                .AsEnumerable()
+                .Where(u => MyContains(u.name, "dUser1"))
+                .ToList(); //will not get exception
+
+            return Ok(u);
+        }
+
+
+
+
     }
 }
